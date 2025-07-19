@@ -1,0 +1,18 @@
+root = "./"               # Path to the root of the project
+testdata_dir = "testdata"
+tmp_dir = "tmp"
+
+[build]
+cmd = "cmd /c go run cmd/main.go"
+
+[log]
+time = true
+
+[pre]
+cmd = "cmd /c swag init --generalInfo cmd/main.go --parseDependency --parseInternal"
+
+[color]
+main = "yellow"
+watcher = "cyan"
+build = "green"
+runner = "magenta"
