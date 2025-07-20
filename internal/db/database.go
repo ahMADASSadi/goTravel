@@ -33,6 +33,9 @@ func migrate() {
 		// &Terminal{},
 		// &Reservation{},
 		// &Purchase{},
+		&models.Reservation{},
+		&models.Seat{},
+		&models.Bus{},
 		&models.WeeklyTimeSchedule{},
 	)
 	if err != nil {
