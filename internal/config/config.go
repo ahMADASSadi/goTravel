@@ -4,7 +4,7 @@ import "path/filepath"
 
 type Config struct {
 	AppName  string
-	HTTPPort string
+	HTTPPort uint
 	DBDriver string
 	DBSource string
 }
@@ -16,7 +16,7 @@ func LoadConfig() *Config {
 
 	return &Config{
 		AppName:  "Ticketing",
-		HTTPPort: "8000",
+		HTTPPort: 8000,
 		DBDriver: "sqlite3",
 		DBSource: dbPath,
 	}
