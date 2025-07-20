@@ -1,0 +1,52 @@
+-- database: ../../../ticketings.sqlite3
+CREATE TRIGGER update_remaining_seats_after_insert AFTER INSERT ON seats BEGIN
+UPDATE buses
+SET
+    remaining_seats = (
+        SELECT
+            COUNT(*)
+        FROM
+            seats
+        WHERE
+            bus_id = NEW.bus_id
+            AND available = 1
+    )
+WHERE
+    id = NEW.bus_id;
+
+END;
+
+CREATE TRIGGER update_remaining_seats_after_update AFTER
+UPDATE ON seats BEGIN
+UPDATE buses
+SET
+    remaining_seats = (
+        SELECT
+            COUNT(*)
+        FROM
+            seats
+        WHERE
+            bus_id = NEW.bus_id
+            AND available = 1
+    )
+WHERE
+    id = NEW.bus_id;
+
+END;
+
+CREATE TRIGGER update_remaining_seats_after_delete AFTER DELETE ON seats BEGIN
+UPDATE buses
+SET
+    remaining_seats = (
+        SELECT
+            COUNT(*)
+        FROM
+            seats
+        WHERE
+            bus_id = OLD.bus_id
+            AND available = 1
+    )
+WHERE
+    id = OLD.bus_id;
+
+END;

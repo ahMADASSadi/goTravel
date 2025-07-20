@@ -1,0 +1,28 @@
+-- database: ../../../ticketings.sqlite3
+-- Use the ▷ button in the top right corner to run the entire file.
+INSERT INTO
+    weekly_time_schedules (
+        origin_city_code,
+        origin_terminal_code,
+        destination_city_code,
+        destination_terminal_code,
+        day_of_week,
+        departure_time,
+        departure_date,
+        approx_duration_mins,
+        price,
+        bus_id
+    )
+VALUES
+    (
+        "ISF",
+        "KAVEH",
+        "THR",
+        "BYHGHI",
+        1,
+        79200,
+        "2024-07-20",
+        1200,
+        450000,
+        1
+    )
