@@ -33,6 +33,7 @@ API documentation is generated with Swagger and served at `/swagger/index.html`.
 - **Configuration**
   - HTTP server runs on port **8000** by default.
   - SQLite database file is created in the project root as `ticketings.sqlite3`.
+  - There are some db triggers that have to be set and you can find them in the `internal/db/sql_commands`
   - Swagger docs are available at `/swagger/index.html` when the server is running.
 
 - **Environment**

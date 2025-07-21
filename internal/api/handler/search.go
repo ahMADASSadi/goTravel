@@ -32,12 +32,11 @@ func SearchForTravel(c *gin.Context) {
 		response.Error(c, errors.ErrBadRequest)
 		return
 	}
-
 	dayOfWeek := services.SetDayOfWeek(&input.DepartureDate)
 
 	if err := db.DB.
 		Preload("Bus", func(db *gorm.DB) *gorm.DB {
-			return db.Preload("Seats", "available = ?", true) // preload seats where available = true
+			return db.Preload("Seats", "available = ?", true)
 		}).
 		Where("origin_city_code = ?", input.Origin).
 		Where("destination_city_code = ?", input.Destination).
