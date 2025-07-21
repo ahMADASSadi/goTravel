@@ -28,14 +28,10 @@ func ConnectDatabase(dbDriver, dbSource string) {
 func migrate() {
 	// Auto-migrate your tables here
 	err := DB.AutoMigrate(
-		// &Origin{},
-		// &Target{},
-		// &Terminal{},
-		// &Reservation{},
-		// &Purchase{},
-		&models.Reservation{},
-		&models.Seat{},
 		&models.Bus{},
+		&models.Seat{},
+		&models.Ticket{},
+		&models.Reservation{},
 		&models.WeeklyTimeSchedule{},
 	)
 	if err != nil {
