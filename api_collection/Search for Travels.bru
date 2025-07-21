@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: 127.0.0.1:8000/api/v1/travels/?origin=ISF&destination=THR&departure_date=2024-07-22
+  url: 127.0.0.1:8000/api/v1/travels/?origin=ISF&destination=THR
   body: multipartForm
   auth: inherit
 }
@@ -13,5 +13,4 @@ get {
 params:query {
   origin: ISF
   destination: THR
-  departure_date: 2024-07-22
 }
