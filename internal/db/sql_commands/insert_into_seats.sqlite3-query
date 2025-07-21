@@ -1,0 +1,5 @@
+-- database: ../../../ticketings.sqlite3
+INSERT INTO seats (bus_id, number) VALUES (
+    1,
+    1
+)
