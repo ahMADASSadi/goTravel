@@ -2,7 +2,7 @@
 
 ## Architecture
 
-The architecture of this project is an `idiomatic/layerd structure` which seperates the project into different layers including `cmd` layer, `internal` layer which itself contains the `api`(`routes`, `handlers`), `config`, `db`, `errors`, `reponses`, `models`, `repository` and the `service` layers
+The architecture of this project is an `idiomatic/layerd structure` which seperates the project into different layers including `cmd` layer, `internal` layer which itself contains the `api`(`routes`, `handlers`), `config`, `db`, `errors`, `reponses`, `models`, `repository` and the `service` layers, along with the auto-generated `swagger` api documentation layer in `docs`.
 
 ### Structure layout
 
@@ -27,4 +27,5 @@ internal/         <-- All your application-specific code (private to your projec
     repository/   <-- Data access layer (queries, CRUD, DB transactions)
     
     service/      <-- Business logic layer (pure Go logic, independent of HTTP or DB)
+docs/             <-- Swagger Documentation 
 ```
