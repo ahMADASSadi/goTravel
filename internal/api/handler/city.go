@@ -32,7 +32,7 @@ func GetOriginsHandler(c *gin.Context) {
 // @Tags         Cities
 // @Accept       json
 // @Produce      json
-// @Param        city_codes  body      []RequestBody  true  "List of city codes to filter"
+// @Param        city_codes  body      []models.RequestBody  true  "List of city codes to filter"
 // @Success      200         {object}  map[string][]string  "Filtered list of available origins"
 // @Failure      400         {object}  map[string]string    "Invalid JSON body or missing city_code"
 // @Failure      500         {object}  map[string]string    "Internal server error"
@@ -70,6 +70,7 @@ func GetOriginHandler(c *gin.Context) {
 // @Success      200        {object}  map[string][]string  "List of destination city codes"
 // @Failure      400        {object}  map[string]string    "Invalid JSON body or missing city_code"
 // @Failure      404        {object}  map[string]string    "No destinations found for the origin"
+// @Router       /api/v1/origins/destinations/ [get]
 // @Router       /api/v1/origins/destinations/ [post]
 func GetDestinationHandler(c *gin.Context) {
 	var origin models.RequestBody
@@ -95,17 +96,18 @@ func GetDestinationHandler(c *gin.Context) {
 
 // GetTerminalsHandler godoc
 // @Summary      Get terminals for a city
-// @Description  Returns a list of terminals for the specified city code if there are any routes available
+// @Description  Returns a list of terminals for the specified city code. Set `is_origin` to true to get origin terminals, or false for destination terminals.
 // @Tags         Cities
 // @Accept       json
 // @Produce      json
-// @Param        origin  body      models.RequestBody  true  "City Code"
-// @Success      200     {object}  map[string][]models.CityTerminal
-// @Failure      400     {object}  map[string]string  "Invalid JSON body or missing city_code"
-// @Failure      404     {object}  map[string]string  "No terminals found for this city"
+// @Param        terminal_request  body      models.TerminalRequestBody  true  "City code and terminal type"
+// @Success      200               {object}  map[string][]models.CityTerminal  "List of terminals"
+// @Failure      400               {object}  map[string]string  "Invalid JSON body or missing city_code"
+// @Failure      404               {object}  map[string]string  "No terminals found for this city"  "No terminals found for this city"
+// @Router       /api/v1/origins/terminals/ [get]
 // @Router       /api/v1/origins/terminals/ [post]
 func GetTerminalsHandler(c *gin.Context) {
-	var origin models.RequestBody
+	var origin models.TerminalRequestBody
 	if err := c.ShouldBind(&origin); err != nil {
 		response.Error(c, errors.ErrBadRequest)
 		return
@@ -117,7 +119,7 @@ func GetTerminalsHandler(c *gin.Context) {
 		return
 	}
 
-	terminals, err := repository.GetCityTerminals(originCode)
+	terminals, err := repository.GetCityTerminals(originCode, origin.IsOrigin)
 	if err != nil {
 		response.Error(c, errors.ErrServerError)
 		return

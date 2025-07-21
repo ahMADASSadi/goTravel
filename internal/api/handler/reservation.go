@@ -27,8 +27,7 @@ func CreateReservationHandler(c *gin.Context) {
 		response.Error(c, errors.ErrBadRequest)
 		return
 	}
-
-	if len(input.SeatNo) > int(input.PassengerNo) {
+	if len(input.SeatNo) < int(input.PassengerNo) {
 		response.Error(c, errors.ErrSeatLessThanPassenger)
 		return
 	}
