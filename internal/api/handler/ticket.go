@@ -97,6 +97,7 @@ func RefundTicketHandler(c *gin.Context) {
 
 	response.Success(c, gin.H{"message": "Ticket refund successfully"})
 }
+
 // InquiryTicketHandler godoc
 // @Summary      Inquiry about a ticket or reservation
 // @Description  Retrieves details of a ticket, reservation, or travel based on search_id, ticket_number, or reservation_id.
@@ -118,43 +119,45 @@ func InquiryTicketHandler(c *gin.Context) {
 	case input.SearchID != "":
 		travelInfo, err := repository.GetTravelInfoWithSearchID(input.SearchID)
 		if err != nil {
-			c.JSON(404, gin.H{"error": "travel not found"})
+			response.Error(c, errors.ErrNotFound)
 			return
 		}
-		c.JSON(200, gin.H{
-			"travel":    travelInfo,
-		})
+		response.Success(c, gin.H{"travel": travelInfo})
+
 	case input.ReservationID != 0:
 		reservation, err := repository.GetReservationInfo(input.ReservationID) //getReservationByID(input.ReservationID)
 		if err != nil {
-			c.JSON(404, gin.H{"error": "reservation not found"})
+			response.Error(c, errors.ErrNotFound)
 			return
 		}
 		travelInfo, err := repository.GetTravelInfoWithSearchID(reservation.SearchID)
 		if err != nil {
-			c.JSON(404, gin.H{"error": "travel for reservation not found"})
+			response.Error(c, errors.ErrNotFound)
 			return
 		}
-		c.JSON(200, gin.H{
-			"reservation":    reservation,
-			"travel":         travelInfo,
+
+		response.Success(c, gin.H{
+			"reservation": reservation,
+			"travel":      travelInfo,
 		})
+
 	case input.TicketNo != "":
 		ticket, err := repository.GetTicketByNumber(input.TicketNo)
 		if err != nil {
-			c.JSON(404, gin.H{"error": "ticket not found"})
+			response.Error(c, errors.ErrNotFound)
 			return
 		}
 		travelInfo, err := repository.GetTravelInfoWithSearchID(ticket.SearchID)
 		if err != nil {
-			c.JSON(404, gin.H{"error": "travel for ticket not found"})
+			response.Error(c, errors.ErrNotFound)
 			return
 		}
-		c.JSON(200, gin.H{
-			"ticket":        ticket,
-			"travel":        travelInfo,
+
+		response.Success(c, gin.H{
+			"ticket": ticket,
+			"travel": travelInfo,
 		})
 	default:
-		c.JSON(400, gin.H{"error": "please provide at least one of: search_id, ticket_number, or reservation_id"})
+		response.Error(c, errors.ErrBadRequest)
 	}
 }
