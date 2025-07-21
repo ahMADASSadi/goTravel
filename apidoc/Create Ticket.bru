@@ -1,0 +1,31 @@
+meta {
+  name: Create Ticket
+  type: http
+  seq: 8
+}
+
+post {
+  url: 127.0.0.1:8000/api/v1/reservation/buy
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "passengers": [
+      {
+        "first_name": "test",
+        "last_name": "test",
+        "phone_number":"09138038121",
+        "social_code":"1111111111"
+      },
+      {
+        "first_name": "test",
+        "last_name": "test",
+        "phone_number":"09138038121",
+        "social_code":"1111111112"
+      }
+    ],
+    "reservation_id":3
+  }
+}

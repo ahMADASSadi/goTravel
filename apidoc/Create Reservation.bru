@@ -1,0 +1,25 @@
+meta {
+  name: Create Reservation
+  type: http
+  seq: 7
+}
+
+post {
+  url: 127.0.0.1:8000/api/v1/reservation/
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "search_id": "MToxOjYyNmVlOGNmNjMy",
+    "seat_number": [
+      6,7
+    ],
+    "passenger_number": 2
+  }
+}
+
+body:multipart-form {
+  search_id: MToxOjljMDhiMDk3ZWZk
+}

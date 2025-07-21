@@ -1,0 +1,21 @@
+meta {
+  name: Get Terminals For Origin
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:8000/api/v1/origins/terminals
+  body: multipartForm
+  auth: inherit
+}
+
+body:json {
+  {
+    "city_code": "ISF"
+  }
+}
+
+body:multipart-form {
+  city_code: ISF
+}

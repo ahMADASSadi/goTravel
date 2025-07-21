@@ -1,0 +1,23 @@
+meta {
+  name: Get Available Origins
+  type: http
+  seq: 6
+}
+
+post {
+  url: http://localhost:8000/api/v1/origins/
+  body: multipartForm
+  auth: inherit
+}
+
+body:json {
+  [
+    {
+      "city_code": "ISF"
+    }
+  ]
+}
+
+body:multipart-form {
+  city_code: ISF& @contentType(string)
+}

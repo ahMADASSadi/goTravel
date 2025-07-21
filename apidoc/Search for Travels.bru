@@ -1,0 +1,17 @@
+meta {
+  name: Search for Travels
+  type: http
+  seq: 4
+}
+
+get {
+  url: 127.0.0.1:8000/api/v1/travels/?origin=ISF&destination=THR&departure_date=2025-07-20
+  body: multipartForm
+  auth: inherit
+}
+
+params:query {
+  origin: ISF
+  destination: THR
+  departure_date: 2025-07-20
+}
