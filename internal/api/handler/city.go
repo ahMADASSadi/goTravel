@@ -2,14 +2,11 @@ package handler
 
 import (
 	"github.com/ahMADASSadi/goTravel/internal/errors"
+	"github.com/ahMADASSadi/goTravel/internal/models"
 	"github.com/ahMADASSadi/goTravel/internal/repository"
 	response "github.com/ahMADASSadi/goTravel/internal/responses"
 	"github.com/gin-gonic/gin"
 )
-
-type RequestBody struct {
-	CityCode string `json:"city_code" binding:"required"`
-}
 
 // GetOriginsHandler godoc
 // @Summary      Get all the available origins
@@ -23,7 +20,7 @@ type RequestBody struct {
 func GetOriginsHandler(c *gin.Context) {
 	origins, err := repository.GetAvailableOrigins()
 	if err != nil {
-		response.Error(c, errors.ErrNotFound)
+		response.Error(c, errors.ErrServerError)
 		return
 	}
 	response.Success(c, gin.H{"origins": origins})
@@ -41,9 +38,9 @@ func GetOriginsHandler(c *gin.Context) {
 // @Failure      500         {object}  map[string]string    "Internal server error"
 // @Router       /api/v1/origins/ [post]
 func GetOriginHandler(c *gin.Context) {
-	var requests []RequestBody
-	if err := c.ShouldBindJSON(&requests); err != nil {
-		response.Error(c, errors.ErrNotFound)
+	var requests []models.RequestBody
+	if err := c.ShouldBind(&requests); err != nil {
+		response.Error(c, errors.ErrBadRequest)
 		return
 	}
 	cityCodes := make([]string, 0, len(requests))
@@ -69,15 +66,15 @@ func GetOriginHandler(c *gin.Context) {
 // @Tags         Cities
 // @Accept       json
 // @Produce      json
-// @Param        city_code  body      RequestBody   true  "Origin city code"
+// @Param        city_code  body      models.RequestBody   true  "Origin city code"
 // @Success      200        {object}  map[string][]string  "List of destination city codes"
 // @Failure      400        {object}  map[string]string    "Invalid JSON body or missing city_code"
 // @Failure      404        {object}  map[string]string    "No destinations found for the origin"
-// @Router       /api/v1/destinations/ [post]
+// @Router       /api/v1/origins/destinations/ [post]
 func GetDestinationHandler(c *gin.Context) {
-	var origin RequestBody
+	var origin models.RequestBody
 
-	if err := c.ShouldBindJSON(&origin); err != nil {
+	if err := c.ShouldBind(&origin); err != nil {
 		response.Error(c, errors.ErrBadRequest)
 		return
 	}
@@ -90,7 +87,7 @@ func GetDestinationHandler(c *gin.Context) {
 
 	targets, err := repository.GetAvailableDestinations(originCode)
 	if err != nil {
-		response.Error(c, errors.ErrNotFound)
+		response.Error(c, errors.ErrServerError)
 		return
 	}
 	response.Success(c, gin.H{"targets": targets})
@@ -102,16 +99,14 @@ func GetDestinationHandler(c *gin.Context) {
 // @Tags         Cities
 // @Accept       json
 // @Produce      json
-// @Param        origin  body      RequestBody  true  "City Code"
+// @Param        origin  body      models.RequestBody  true  "City Code"
 // @Success      200     {object}  map[string][]models.CityTerminal
 // @Failure      400     {object}  map[string]string  "Invalid JSON body or missing city_code"
 // @Failure      404     {object}  map[string]string  "No terminals found for this city"
-// @Router       /api/v1/terminals/ [post]
+// @Router       /api/v1/origins/terminals/ [post]
 func GetTerminalsHandler(c *gin.Context) {
-	var origin RequestBody
-
-	// Parse JSON body
-	if err := c.ShouldBindJSON(&origin); err != nil {
+	var origin models.RequestBody
+	if err := c.ShouldBind(&origin); err != nil {
 		response.Error(c, errors.ErrBadRequest)
 		return
 	}
@@ -124,7 +119,7 @@ func GetTerminalsHandler(c *gin.Context) {
 
 	terminals, err := repository.GetCityTerminals(originCode)
 	if err != nil {
-		response.Error(c, errors.ErrNotFound)
+		response.Error(c, errors.ErrServerError)
 		return
 	}
 

@@ -15,3 +15,7 @@ type CityTerminal struct {
 	CityName  string
 	Terminals []Terminal
 }
+
+type RequestBody struct {
+	CityCode string `json:"city_code" form:"city_code" binding:"required"`
+}
