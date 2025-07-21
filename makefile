@@ -2,16 +2,21 @@
 
 APP_NAME=main
 
+default: dev
+
 .PHONY: swag run dev sync
 
 swag:
-	swag init --generalInfo cmd/main.go --parseDependency --parseInternal
+	swag init -g cmd/main.go
 
 run: swag
-	go run /cmd/main.go
+	go run cmd/main.go
 
-dev:
+dev: swag
 	air
 
 sync:
 	go get -u
+
+doc:
+	godoc -http=:6060
