@@ -1,0 +1,19 @@
+meta {
+  name: Ticket Inquiry
+  type: http
+  seq: 10
+}
+
+post {
+  url: 127.0.0.1:8000/api/v1/tickets/inquiry
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+  //     "search_id": "MToxOjMwMDBiZjFhYjYz"
+      "ticket_number": "TKT-01753081008541912200"
+  //     "reservation_id": 1
+  }
+}
