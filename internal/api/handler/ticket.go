@@ -117,7 +117,7 @@ func InquiryTicketHandler(c *gin.Context) {
 	}
 	switch {
 	case input.SearchID != "":
-		travelInfo, err := repository.GetTravelInfoWithSearchID(input.SearchID)
+		travelInfo, err := repository.GetTravelInfoWithSearchID(db.DB, input.SearchID)
 		if err != nil {
 			response.Error(c, errors.ErrNotFound)
 			return
@@ -125,12 +125,12 @@ func InquiryTicketHandler(c *gin.Context) {
 		response.Success(c, gin.H{"travel": travelInfo})
 
 	case input.ReservationID != 0:
-		reservation, err := repository.GetReservationInfo(input.ReservationID) //getReservationByID(input.ReservationID)
+		reservation, err := repository.GetReservationInfo(db.DB, input.ReservationID) //getReservationByID(input.ReservationID)
 		if err != nil {
 			response.Error(c, errors.ErrNotFound)
 			return
 		}
-		travelInfo, err := repository.GetTravelInfoWithSearchID(reservation.SearchID)
+		travelInfo, err := repository.GetTravelInfoWithSearchID(db.DB, reservation.SearchID)
 		if err != nil {
 			response.Error(c, errors.ErrNotFound)
 			return
@@ -142,12 +142,12 @@ func InquiryTicketHandler(c *gin.Context) {
 		})
 
 	case input.TicketNo != "":
-		ticket, err := repository.GetTicketByNumber(input.TicketNo)
+		ticket, err := repository.GetTicketByNumber(db.DB, input.TicketNo)
 		if err != nil {
 			response.Error(c, errors.ErrNotFound)
 			return
 		}
-		travelInfo, err := repository.GetTravelInfoWithSearchID(ticket.SearchID)
+		travelInfo, err := repository.GetTravelInfoWithSearchID(db.DB, ticket.SearchID)
 		if err != nil {
 			response.Error(c, errors.ErrNotFound)
 			return
