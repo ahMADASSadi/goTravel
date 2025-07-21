@@ -1,7 +1,9 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"log"
 
 	_ "github.com/ahMADASSadi/goTravel/docs"
 
@@ -22,6 +24,10 @@ func main() {
 	server := gin.Default()
 	server.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	router.SetupRouter(server)
-	server.Run(":8000")
-	go services.AutoCancelReservations()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	go services.AutoCancelReservations(ctx)
+	if err := server.Run(":8000"); err != nil {
+		log.Fatalf("failed to start server: %v", err)
+	}
 }
