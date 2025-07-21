@@ -7,25 +7,43 @@ import (
 
 func SetupRouter(server *gin.Engine) {
 	v1 := server.Group("/api/v1")
-	ReservationRoutes(v1)
-	OriginRoutes(v1)
-	TravelRouter(v1)
+	{
+		registerReservationRoutes(v1)
+		registerTicketRoutes(v1)
+		registerOriginRoutes(v1)
+		registerTravelRoutes(v1)
+	}
 }
 
-func ReservationRoutes(group *gin.RouterGroup) {
-	group.Group("/reservation").POST("/", handler.CreateReservation)
-	group.Group("/reservation").POST("/cancel", handler.CancelReservation)
+func registerReservationRoutes(rg *gin.RouterGroup) {
+	reservation := rg.Group("/reservations")
+	{
+		reservation.POST("/", handler.CreateReservationHandler)
+		reservation.POST("/cancel", handler.CancelReservationHandler)
+	}
 }
 
-func OriginRoutes(group *gin.RouterGroup) {
-	group.Group("/origins").POST("/", handler.GetOriginHandler)
-	group.Group("/origins").GET("/", handler.GetOriginsHandler)
-	group.Group("/destinations").POST("/", handler.GetDestinationHandler)
-	group.Group("/destinations").GET("/", handler.GetDestinationHandler)
-	group.Group("/terminals").POST("/", handler.GetTerminalsHandler)
+func registerTicketRoutes(rg *gin.RouterGroup) {
+	tickets := rg.Group("/tickets")
+	{
+		tickets.POST("/buy", handler.CreateTicketHandler)
+		tickets.POST("/refund", handler.RefundTicketHandler)
+	}
 }
 
-func TravelRouter(group *gin.RouterGroup) {
-	group.Group("/travels").GET("/", handler.SearchForTravel)
+func registerOriginRoutes(rg *gin.RouterGroup) {
+	origins := rg.Group("/origins")
+	{
+		origins.GET("/", handler.GetOriginsHandler)            // list all origins
+		origins.POST("/", handler.GetOriginHandler)            // filter origins
+		origins.POST("/destinations", handler.GetDestinationHandler) // get destinations for origin
+		origins.POST("/terminals", handler.GetTerminalsHandler)     // get terminals for city
+	}
+}
 
+func registerTravelRoutes(rg *gin.RouterGroup) {
+	travels := rg.Group("/travels")
+	{
+		travels.GET("/", handler.SearchForTravel)
+	}
 }

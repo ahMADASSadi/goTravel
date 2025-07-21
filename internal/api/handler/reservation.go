@@ -1,80 +1,57 @@
 package handler
 
 import (
-	"encoding/json"
-	"time"
-
 	"github.com/ahMADASSadi/goTravel/internal/db"
 	"github.com/ahMADASSadi/goTravel/internal/errors"
 	"github.com/ahMADASSadi/goTravel/internal/models"
 	response "github.com/ahMADASSadi/goTravel/internal/responses"
 	"github.com/ahMADASSadi/goTravel/internal/services"
 	"github.com/gin-gonic/gin"
-	"gorm.io/datatypes"
 )
 
-func CreateReservation(c *gin.Context) {
+// CreateReservationHandler godoc
+// @Summary      Create a new reservation
+// @Description  Books seats for a specific travel using the provided SearchID and returns the reservation ID.
+// @Tags         Reservations
+// @Accept       json
+// @Produce      json
+// @Param        reservation  body      models.CreateReservationInput  true  "Reservation input data"
+// @Success      200          {object}  map[string]uint                "Reservation successfully created"
+// @Failure      400          {object}  map[string]string              "Bad request (invalid input)"
+// @Failure      409          {object}  map[string]string              "Seats unavailable"
+// @Failure      500          {object}  map[string]string              "Internal server error"
+// @Router       /api/v1/reservations/ [post]
+func CreateReservationHandler(c *gin.Context) {
 	var input models.CreateReservationInput
-	if err := c.ShouldBindJSON(&input); err != nil {
+	if err := c.ShouldBind(&input); err != nil {
 		response.Error(c, errors.ErrBadRequest)
 		return
 	}
 
-	// Decode search ID
-	travelID, busID, err := services.DecodeSearchID(input.SearchID)
+	if len(input.SeatNo) > int(input.PassengerNo) {
+		response.Error(c, errors.ErrSeatLessThanPassenger)
+		return
+	}
+	_, busID, err := services.DecodeSearchID(input.SearchID)
 	if err != nil {
 		response.Error(c, errors.ErrBadRequest)
 		return
 	}
 
-	// Start transaction
 	tx := db.DB.Begin()
 	if tx.Error != nil {
 		response.Error(c, errors.ErrServerError)
 		return
 	}
 
-	// Check seat availability
-	var count int64
-	if err := tx.Model(&models.Seat{}).
-		Where("bus_id = ? AND number IN ?", busID, input.SeatNo).
-		Where("available = ?", true).
-		Count(&count).Error; err != nil {
-		tx.Rollback()
-		response.Error(c, errors.ErrServerError)
-		return
-	}
-	if count != int64(len(input.SeatNo)) {
+	reservation, err := services.MarkSeatsAsReserved(tx, busID, input.SearchID, input.SeatNo)
+	if err != nil {
 		tx.Rollback()
 		response.Error(c, errors.ErrSeatsUnavailable)
+
 		return
 	}
 
-	// Mark seats as unavailable
-	if err := tx.Model(&models.Seat{}).
-		Where("bus_id = ? AND number IN ?", busID, input.SeatNo).
-		Update("available", false).Error; err != nil {
-		tx.Rollback()
-		response.Error(c, errors.ErrServerError)
-		return
-	}
-
-	// Create reservation
-	seatsJSON, _ := json.Marshal(input.SeatNo)
-	reservation := models.Reservation{
-		Seats:     datatypes.JSON(seatsJSON),
-		TravelID:  travelID,
-		CreatedAt: time.Now(),
-		ExpiresAt: time.Now().Add(15 * time.Minute),
-	}
-
-	if err := tx.Create(&reservation).Error; err != nil {
-		tx.Rollback()
-		response.Error(c, errors.ErrNotCreated)
-		return
-	}
-
-	// Commit transaction
 	if err := tx.Commit().Error; err != nil {
 		response.Error(c, errors.ErrServerError)
 		return
@@ -85,21 +62,42 @@ func CreateReservation(c *gin.Context) {
 	})
 }
 
-func CancelReservation(c *gin.Context) {
+// CancelReservationHandler godoc
+// @Summary      Cancel a reservation
+// @Description  Cancels a reservation by ID and releases the reserved seats.
+// @Tags         Reservations
+// @Accept       json
+// @Produce      json
+// @Param        reservation  body      models.CancelReservationInput  true  "Reservation ID to cancel"
+// @Success      200          {object}  map[string]string               "Reservation successfully canceled"
+// @Failure      400          {object}  map[string]string               "Bad request (invalid input)"
+// @Failure      404          {object}  map[string]string               "Reservation not found"
+// @Failure      500          {object}  map[string]string               "Internal server error"
+// @Router       /api/v1/reservations/cancel/ [post]
+func CancelReservationHandler(c *gin.Context) {
 	var input models.CancelReservationInput
-	if err := c.ShouldBindJSON(&input); err != nil {
+	if err := c.ShouldBind(&input); err != nil {
 		response.Error(c, errors.ErrBadRequest)
 		return
 	}
 
-	if err := db.DB.Model(&models.Reservation{}).
-		Where("id = ?", input.ReservationID).
-		Updates(map[string]interface{}{
-			"expires_at": nil,
-			"status":     models.Canceled,
-		}).Error; err != nil {
+	tx := db.DB.Begin()
+	if tx.Error != nil {
 		response.Error(c, errors.ErrServerError)
 		return
 	}
+
+	if err := services.UnmarkReservedSeats(tx, input.ReservationID); err != nil {
+		tx.Rollback()
+		response.Error(c, errors.ErrNotFound)
+
+		return
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		response.Error(c, errors.ErrServerError)
+		return
+	}
+
 	response.Success(c, gin.H{"message": "Reservation canceled"})
 }

@@ -12,18 +12,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type TravelSearchInput struct {
-	Origin        string    `form:"origin" binding:"required"`
-	Destination   string    `form:"destination" binding:"required"`
-	DepartureDate time.Time `form:"departure_date" time_format:"2006-01-02"`
-}
-
-type TravelSearchOutput struct {
-	models.WeeklyTimeSchedule
-	ApproxArrivalTime time.Time `json:"approx_arrival_time" example:"2024-07-21T20:00:00Z"`
-	SearchID          string    `json:"search_id" example:"123e4567-e89b-12d3-a456-426614174000"`
-}
-
 // SearchForTravel godoc
 // @Summary      Search for available travels
 // @Description  Returns a list of weekly time schedules for travels that match origin, destination, and date
@@ -36,10 +24,10 @@ type TravelSearchOutput struct {
 // @Success      200  {object}   map[string][]TravelSearchOutput  "List of matching travel schedules"
 // @Failure      400  {object}   map[string]string  "Invalid query params"
 // @Failure      500  {object}   map[string]string  "Failed to fetch data"
-// @Router       /api/v1/travels/ [get]
+// @Router       /api/v1/travels [get]
 func SearchForTravel(c *gin.Context) {
 	var results []models.WeeklyTimeSchedule
-	var input TravelSearchInput
+	var input models.TravelSearchInput
 	if err := c.ShouldBindQuery(&input); err != nil {
 		response.Error(c, errors.ErrBadRequest)
 		return
@@ -59,10 +47,10 @@ func SearchForTravel(c *gin.Context) {
 		return
 	}
 
-	var outputs []TravelSearchOutput
+	var outputs []models.TravelSearch
 	for _, schedule := range results {
 		searchID := services.EncodeSearchID(schedule.ID, schedule.BusID)
-		outputs = append(outputs, TravelSearchOutput{
+		outputs = append(outputs, models.TravelSearch{
 			WeeklyTimeSchedule: schedule,
 			ApproxArrivalTime:  schedule.DepartureDate.Add(time.Duration(schedule.DepartureTime) * time.Second),
 			SearchID:           searchID,
