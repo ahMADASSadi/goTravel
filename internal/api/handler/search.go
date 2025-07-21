@@ -21,7 +21,7 @@ import (
 // @Param        origin          query     string  true  "Origin city code"       example: ISF
 // @Param        destination     query     string  true  "Destination city code"  example: THR
 // @Param        departure_date  query     string  false  "Departure date (YYYY-MM-DD)"  example: 2024-07-21
-// @Success      200  {object}   map[string][]TravelSearchOutput  "List of matching travel schedules"
+// @Success      200  {object}   map[string][]models.TravelSearch  "List of matching travel schedules"
 // @Failure      400  {object}   map[string]string  "Invalid query params"
 // @Failure      500  {object}   map[string]string  "Failed to fetch data"
 // @Router       /api/v1/travels [get]

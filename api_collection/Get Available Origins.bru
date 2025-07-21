@@ -6,7 +6,7 @@ meta {
 
 post {
   url: http://localhost:8000/api/v1/origins/
-  body: multipartForm
+  body: json
   auth: inherit
 }
 
@@ -19,5 +19,5 @@ body:json {
 }
 
 body:multipart-form {
-  city_code: ISF& @contentType(string)
+  ~city_code: ISF& @contentType(string)
 }

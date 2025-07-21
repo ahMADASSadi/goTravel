@@ -1,5 +1,5 @@
 meta {
-  name: Get Terminals For Origin
+  name: Get Terminals post body
   type: http
   seq: 3
 }
@@ -17,5 +17,6 @@ body:json {
 }
 
 body:multipart-form {
-  city_code: ISF
+  city_code: THR
+  ~is_origin: true
 }

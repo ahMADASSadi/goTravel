@@ -1,0 +1,15 @@
+meta {
+  name: Get Terminals url query
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:8000/api/v1/origins/terminals/?city_code=ISF
+  body: none
+  auth: inherit
+}
+
+params:query {
+  city_code: ISF
+}

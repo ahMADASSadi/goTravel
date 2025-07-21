@@ -29,7 +29,7 @@ func AutoCancelReservations(ctx context.Context) {
 		}
 	}
 }
-func createReservation(tx *gorm.DB, seatNumbers []uint, searchID string) (*models.Reservation, error) {
+func CreateReservation(tx *gorm.DB, seatNumbers []uint, searchID string) (*models.Reservation, error) {
 	seatsJSON, _ := json.Marshal(seatNumbers)
 	reservation := models.Reservation{
 		Seats:     datatypes.JSON(seatsJSON),
@@ -43,36 +43,40 @@ func createReservation(tx *gorm.DB, seatNumbers []uint, searchID string) (*model
 	}
 	return &reservation, nil
 }
+
 func MarkSeatsAsReserved(tx *gorm.DB, busID uint, searchID string, seatNumbers []uint) (*models.Reservation, error) {
-	// Check seat availability
-	var count int64
-	if err := tx.Model(&models.Seat{}).
-		Where("bus_id = ? AND number IN ?", busID, seatNumbers).
-		Where("available = ?", true).
-		Count(&count).Error; err != nil {
-		return nil, err
-	}
-	if count != int64(len(seatNumbers)) {
-		return nil, errors.ErrSeatsUnavailable
-	}
+    // Check seat availability
+    var count int64
+    if err := tx.Model(&models.Seat{}).
+        Where("bus_id = ? AND number IN ?", busID, seatNumbers).
+        Where("available = ?", true).
+        Count(&count).Error; err != nil {
+        return nil, err
+    }
 
-	// Mark seats as unavailable
-	if err := tx.Model(&models.Seat{}).
-		Where("bus_id = ? AND number IN ?", busID, seatNumbers).
-		Update("available", false).Error; err != nil {
-		return nil, err
-	}
 
-	reservation, err := createReservation(tx, seatNumbers, searchID)
-	if err != nil {
-		return nil, err
-	}
-	return reservation, nil
+    if count != int64(len(seatNumbers)) {
+        return nil, errors.ErrSeatsUnavailable
+    }
+
+    // Mark seats as unavailable
+    if err := tx.Model(&models.Seat{}).
+        Where("bus_id = ? AND number IN ?", busID, seatNumbers).
+        Update("available", false).Error; err != nil {
+        return nil, err
+    }
+
+    reservation, err := CreateReservation(tx, seatNumbers, searchID)
+    if err != nil {
+        return nil, err
+    }
+    return reservation, nil
 }
-func cancelReservation(tx *gorm.DB, reservationID uint) error {
+
+func CancelReservation(tx *gorm.DB, reservationID uint) error {
 	if err := tx.Model(&models.Reservation{}).
 		Where("id = ?", reservationID).
-		Updates(map[string]interface{}{
+		Updates(map[string]any{
 			"expires_at": nil,
 			"status":     models.Canceled,
 		}).Error; err != nil {
@@ -100,7 +104,7 @@ func UnmarkReservedSeats(tx *gorm.DB, reservationID uint) error {
 		return err
 	}
 
-	if err := cancelReservation(tx, reservationID); err != nil {
+	if err := CancelReservation(tx, reservationID); err != nil {
 		return err
 	}
 

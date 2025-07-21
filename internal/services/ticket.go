@@ -8,8 +8,8 @@ import (
 	"gorm.io/gorm"
 )
 
-func generateTicketNo() string {
-	return fmt.Sprintf("TKT-%d", time.Now().UnixNano())
+func GenerateTicketNo(index int) string {
+	return fmt.Sprintf("TKT-%d%d", index, time.Now().UnixNano())
 }
 func GetSearchIDFromReservation(db *gorm.DB, reservationID uint) (string, error) {
 	var searchID string
@@ -19,6 +19,12 @@ func GetSearchIDFromReservation(db *gorm.DB, reservationID uint) (string, error)
 		Scan(&searchID).Error; err != nil {
 		return "", err
 	}
+
+	// Explicitly return an error if no searchID was found
+	if searchID == "" {
+		return "", fmt.Errorf("reservation not found")
+	}
+
 	return searchID, nil
 }
 
@@ -31,9 +37,9 @@ func CreateTicket(tx *gorm.DB, ticketInput *models.TicketCreateInput) (*[]models
 	}
 
 	var tickets []models.Ticket
-	for _, v := range ticketInput.Passengers {
+	for i, v := range ticketInput.Passengers {
 		ticket := models.Ticket{
-			TicketNo:      generateTicketNo(),
+			TicketNo:      GenerateTicketNo(i),
 			ReservationID: reservationID,
 			SearchID:      searchID,
 			Passenger:     v,
@@ -62,9 +68,9 @@ func RefundTicket(tx *gorm.DB, ticketNo string) error {
 	if err := tx.Model(&ticket).Update("deleted_at", time.Now()).Error; err != nil {
 		return err
 	}
-	if err := UnmarkReservedSeats(tx, ticket.ReservationID); err != nil {
-		return err
-	}
+	// if err := UnmarkReservedSeats(tx, ticket.ReservationID); err != nil {
+	// 	return err
+	// }
 
 	return nil
 }
