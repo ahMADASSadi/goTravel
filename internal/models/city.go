@@ -19,3 +19,8 @@ type CityTerminal struct {
 type RequestBody struct {
 	CityCode string `json:"city_code" form:"city_code" binding:"required"`
 }
+
+type TerminalRequestBody struct {
+	RequestBody
+	IsOrigin bool `json:"is_origin" form:"is_origin"`
+}
