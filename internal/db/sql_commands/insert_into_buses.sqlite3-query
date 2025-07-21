@@ -2,7 +2,7 @@
 INSERT INTO
     buses (created_at, type)
 VALUES
-    (CURRENT_TIMESTAMP, "VOLVO");
+    (CURRENT_TIMESTAMP, "SCAIA");
 
 INSERT INTO
     seats (bus_id, number)
