@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"github.com/ahMADASSadi/goTravel/internal/db"
 	"github.com/ahMADASSadi/goTravel/internal/errors"
 	"github.com/ahMADASSadi/goTravel/internal/models"
 	"github.com/ahMADASSadi/goTravel/internal/repository"
@@ -18,7 +19,7 @@ import (
 // @Failure      404  {object}  map[string]string    "No available origins found"
 // @Router       /api/v1/origins [get]
 func GetOriginsHandler(c *gin.Context) {
-	origins, err := repository.GetAvailableOrigins()
+	origins, err := repository.GetAvailableOrigins(db.DB)
 	if err != nil {
 		response.Error(c, errors.ErrServerError)
 		return
@@ -51,7 +52,7 @@ func GetOriginHandler(c *gin.Context) {
 		}
 		cityCodes = append(cityCodes, req.CityCode)
 	}
-	filtered, err := repository.FilterAvailableOrigins(cityCodes)
+	filtered, err := repository.FilterAvailableOrigins(db.DB, cityCodes)
 	if err != nil {
 		response.Error(c, errors.ErrServerError)
 		return
@@ -86,7 +87,7 @@ func GetDestinationHandler(c *gin.Context) {
 		return
 	}
 
-	targets, err := repository.GetAvailableDestinations(originCode)
+	targets, err := repository.GetAvailableDestinations(db.DB, originCode)
 	if err != nil {
 		response.Error(c, errors.ErrServerError)
 		return
@@ -119,7 +120,7 @@ func GetTerminalsHandler(c *gin.Context) {
 		return
 	}
 
-	terminals, err := repository.GetCityTerminals(originCode, origin.IsOrigin)
+	terminals, err := repository.GetCityTerminals(db.DB, originCode, origin.IsOrigin)
 	if err != nil {
 		response.Error(c, errors.ErrServerError)
 		return
