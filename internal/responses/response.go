@@ -16,7 +16,7 @@ func Success(c *gin.Context, data interface{}) {
 
 func Error(c *gin.Context, err error) {
 	switch e := err.(type) {
-	case *errors.AppError:
+	case *errors.ApiError:
 		c.JSON(e.Code, gin.H{
 			"success": false,
 			"error":   e.Message,
