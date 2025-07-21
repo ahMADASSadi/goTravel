@@ -14,9 +14,9 @@ type Seat struct {
 }
 
 type Bus struct {
-	ID        uint      `gorm:"primarykey" json:"id"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID        uint      `gorm:"primarykey" form:"id" json:"id"`
+	CreatedAt time.Time `form:"created_at" json:"created_at"`
+	UpdatedAt time.Time `form:"updated_at" json:"updated_at"`
 
 	Type           string `gorm:"size:5;not null"`
 	TotalSeats     int    `gorm:"default:24;not null"`
@@ -43,22 +43,22 @@ func (b *Bus) AfterCreate(tx *gorm.DB) (err error) {
 
 	return nil
 }
-func (s *Seat) AfterSave(tx *gorm.DB) error {
-	if s.BusID == 0 {
-		// Load BusID from DB
-		if err := tx.Model(&Seat{}).
-			Where("id = ?", s.ID).
-			Pluck("bus_id", &s.BusID).Error; err != nil {
-			return err
-		}
-	}
+// func (s *Seat) AfterSave(tx *gorm.DB) error {
+// 	if s.BusID == 0 {
+// 		// Load BusID from DB
+// 		if err := tx.Model(&Seat{}).
+// 			Where("id = ?", s.ID).
+// 			Pluck("bus_id", &s.BusID).Error; err != nil {
+// 			return err
+// 		}
+// 	}
 
-	var bus Bus
-	if err := tx.First(&bus, s.BusID).Error; err != nil {
-		return err
-	}
-	return bus.UpdateRemainingSeats(tx)
-}
+// 	var bus Bus
+// 	if err := tx.First(&bus, s.BusID).Error; err != nil {
+// 		return err
+// 	}
+// 	return bus.UpdateRemainingSeats(tx)
+// }
 
 func (s *Seat) AfterDelete(tx *gorm.DB) error {
 	var bus Bus
